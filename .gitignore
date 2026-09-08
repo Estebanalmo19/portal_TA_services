@@ -1,0 +1,32 @@
+# Comparison brief (not part of the shared baseline or either implementation)
+ARRISE_Claude_Code_Prompt.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# Django
+*.sqlite3
+db.sqlite3
+staticfiles/
+
+# Env / secrets
+.env
+.env.*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Logs
+*.log
