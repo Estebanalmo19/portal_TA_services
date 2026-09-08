@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Security Database Hub · {{ BRAND_NAME }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <a href="{% url 'core:catalog' %}">Catálogo</a><span>/</span><span class="current">Security Database Hub</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Security Database Hub</h1>
+    <p class="text-secondary">Inventario y seguimiento operativo de accesos, incidentes y controles físicos/lógicos. <span class="badge badge-warning">Demo · Datos ficticios</span></p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="{{ support_link }}">Reportar un problema</a>
+    <button type="button" class="btn btn-primary" data-security-new>Nuevo incidente</button>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="grid grid-cols-4" style="margin-bottom: var(--space-4);">
+    <div class="kpi-tile"><span class="kpi-tile-label">Incidentes totales</span><span class="kpi-tile-value" data-security-kpi="total">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Abiertos</span><span class="kpi-tile-value" data-security-kpi="open">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Críticos abiertos</span><span class="kpi-tile-value" data-security-kpi="critical">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Controles vencidos</span><span class="kpi-tile-value" data-security-kpi="overdue">—</span></div>
+  </div>
+  <p class="text-secondary" style="margin: 0 0 var(--space-4);">Última sincronización simulada: <strong data-security-last-sync>—</strong></p>
+
+  <div class="card card-padded" data-security-alerts hidden style="margin-bottom: var(--space-4); border-color: var(--color-danger-text);">
+    <h3 style="margin-top:0;">Alertas críticas</h3>
+    <ul data-security-alerts-list style="margin:0; padding-left: 1.1em;"></ul>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs" role="tablist" aria-label="Vistas de Security Database Hub">
+      <button type="button" class="tab" role="tab" id="tab-incidentes" aria-selected="true" data-tab-target="panel-incidentes">Incidentes</button>
+      <button type="button" class="tab" role="tab" id="tab-controles" aria-selected="false" data-tab-target="panel-controles">Controles por piso</button>
+      <button type="button" class="tab" role="tab" id="tab-tendencia" aria-selected="false" data-tab-target="panel-tendencia">Tendencia</button>
+    </div>
+
+    <div id="panel-incidentes" role="tabpanel" aria-labelledby="tab-incidentes" class="tab-panel">
+      <div class="cluster" style="margin-bottom: var(--space-4); flex-wrap: wrap;">
+        <input class="input" type="search" placeholder="Buscar por título o ID…" data-security-filter="q" style="max-width:240px;">
+        <select class="select" data-security-filter="site" style="max-width:170px;">
+          <option value="">Todas las sedes</option>
+          {% for s in sites %}<option value="{{ s.slug }}">{{ s.name }}</option>{% endfor %}
+        </select>
+        <select class="select" data-security-filter="floor" style="max-width:160px;">
+          <option value="">Todos los pisos</option>
+          {% for f in floors %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
+        </select>
+        <select class="select" data-security-filter="category" style="max-width:170px;">
+          <option value="">Todas las categorías</option>
+          {% for c in categories %}<option value="{{ c.slug }}">{{ c.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-security-filter="severity" style="max-width:160px;">
+          <option value="">Todas las severidades</option>
+          {% for s in severities %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-security-filter="status" style="max-width:170px;">
+          <option value="">Todos los estados</option>
+          {% for s in statuses %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+        <button type="button" class="btn btn-secondary" data-security-export>Exportar CSV</button>
+      </div>
+
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Título</th><th>Sede</th><th>Piso</th><th>Categoría</th><th>Severidad</th><th>Estado</th><th>Responsable</th><th>Última actividad</th>
+            </tr>
+          </thead>
+          <tbody data-security-table-body></tbody>
+        </table>
+      </div>
+      <div class="empty-state card card-padded" data-security-empty hidden>
+        <p>No hay incidentes que coincidan con el filtro. <button type="button" class="btn btn-primary btn-sm" data-security-new>Registrar el primero</button></p>
+      </div>
+    </div>
+
+    <div id="panel-controles" role="tabpanel" aria-labelledby="tab-controles" class="tab-panel" hidden>
+      <div class="cluster" style="margin-bottom: var(--space-4); flex-wrap: wrap;">
+        <input class="input" type="search" placeholder="Buscar por etiqueta o ID…" data-security-control-filter="q" style="max-width:240px;">
+        <select class="select" data-security-control-filter="site" style="max-width:170px;">
+          <option value="">Todas las sedes</option>
+          {% for s in sites %}<option value="{{ s.slug }}">{{ s.name }}</option>{% endfor %}
+        </select>
+        <select class="select" data-security-control-filter="floor" style="max-width:160px;">
+          <option value="">Todos los pisos</option>
+          {% for f in floors %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
+        </select>
+        <select class="select" data-security-control-filter="control_type" style="max-width:190px;">
+          <option value="">Todos los tipos</option>
+          {% for c in control_types %}<option value="{{ c.slug }}">{{ c.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-security-control-filter="status" style="max-width:150px;">
+          <option value="">Todos los estados</option>
+          {% for s in control_statuses %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Sede</th><th>Piso</th><th>Tipo</th><th>Etiqueta</th><th>Estado</th><th>Próxima revisión</th><th>Incidente vinculado</th>
+            </tr>
+          </thead>
+          <tbody data-security-controls-body></tbody>
+        </table>
+      </div>
+      <div class="empty-state card card-padded" data-security-controls-empty hidden>
+        <p>No hay controles que coincidan con el filtro.</p>
+      </div>
+    </div>
+
+    <div id="panel-tendencia" role="tabpanel" aria-labelledby="tab-tendencia" class="tab-panel" hidden>
+      <div class="grid grid-cols-4" style="margin-bottom: var(--space-5);">
+        <div class="kpi-tile"><span class="kpi-tile-label">Ejecuciones (12 meses)</span><span class="kpi-tile-value" data-kpi="executions">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Tasa de resolución</span><span class="kpi-tile-value" data-kpi="success-rate">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Horas ahorradas</span><span class="kpi-tile-value" data-kpi="hours-saved">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Satisfacción promedio</span><span class="kpi-tile-value" data-kpi="satisfaction">—</span></div>
+      </div>
+      <div class="card card-padded">
+        <h3>Incidentes gestionados por mes</h3>
+        <div class="chart-container"><canvas data-chart="trend" role="img" aria-label="Incidentes gestionados por mes"></canvas></div>
+      </div>
+      <div class="card card-padded" style="margin-top: var(--space-5);">
+        <h3>Detalle mensual</h3>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Mes</th><th>Ejecuciones</th><th>Resueltos</th><th>Fallidos</th><th>Horas ahorradas</th></tr></thead>
+            <tbody data-security-monthly-body></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ statuses|json_script:"security-statuses" }}
+{{ categories|json_script:"security-categories" }}
+{{ severities|json_script:"security-severities" }}
+{{ control_types|json_script:"security-control-types" }}
+{{ control_statuses|json_script:"security-control-statuses" }}
+{{ sites|json_script:"security-sites" }}
+{{ floors|json_script:"security-floors" }}
+{{ assignees|json_script:"security-assignees" }}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/solutions/security.js' %}"></script>
+{% endblock %}

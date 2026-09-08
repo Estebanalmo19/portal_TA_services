@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}HR Colombia Ticketing · {{ BRAND_NAME }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <a href="{% url 'core:catalog' %}">Catálogo</a><span>/</span><span class="current">HR Colombia Ticketing</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>HR Colombia Ticketing</h1>
+    <p class="text-secondary">
+      Mesa de ayuda de HR Colombia para solicitudes de colaboradores.
+      <span class="badge badge-warning">Demo · Datos ficticios</span>
+    </p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="/soluciones/support/?sol=hr&amp;asunto=Problema%20con%20HR%20Colombia%20Ticketing&amp;descripcion=Describe%20el%20problema%20encontrado%20en%20el%20módulo%20de%20HR%20Colombia%20Ticketing.&amp;origen=solucion">Reportar un problema</a>
+    <button type="button" class="btn btn-primary" data-hr-new>Nuevo ticket</button>
+  </div>
+</div>
+
+<div class="page-content">
+  <div data-tabs>
+    <div class="tabs" role="tablist" aria-label="Vistas de HR Colombia Ticketing">
+      <button type="button" class="tab" role="tab" id="tab-tabla" aria-selected="true" data-tab-target="panel-tabla">Tabla</button>
+      <button type="button" class="tab" role="tab" id="tab-kanban" aria-selected="false" data-tab-target="panel-kanban">Kanban</button>
+      <button type="button" class="tab" role="tab" id="tab-analitica" aria-selected="false" data-tab-target="panel-analitica">Analítica</button>
+    </div>
+
+    <div id="panel-tabla" role="tabpanel" aria-labelledby="tab-tabla" class="tab-panel">
+      <div class="cluster" style="margin-bottom: var(--space-4);">
+        <input class="input" type="search" placeholder="Buscar por asunto, solicitante o ID…" data-hr-filter="q" style="max-width:260px;">
+        <select class="select" data-hr-filter="status" style="max-width:200px;">
+          <option value="">Todos los estados</option>
+          {% for s in statuses %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-hr-filter="category" style="max-width:200px;">
+          <option value="">Todas las categorías</option>
+          {% for c in categories %}<option value="{{ c.slug }}">{{ c.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-hr-filter="priority" style="max-width:160px;">
+          <option value="">Todas las prioridades</option>
+          {% for p in priorities %}<option value="{{ p.slug }}">{{ p.label }}</option>{% endfor %}
+        </select>
+        <label class="cluster" style="gap: var(--space-2); align-items:center;">
+          <input type="checkbox" data-hr-filter="overdue">
+          <span>Solo vencidos</span>
+        </label>
+      </div>
+
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Asunto</th><th>Solicitante</th><th>Categoría</th><th>Prioridad</th><th>Responsable</th><th>Estado</th><th>SLA</th><th>Última actividad</th>
+            </tr>
+          </thead>
+          <tbody data-hr-table-body></tbody>
+        </table>
+      </div>
+      <div class="empty-state card card-padded" data-hr-empty hidden>
+        <p>No hay tickets que coincidan con el filtro. <button type="button" class="btn btn-primary btn-sm" data-hr-new>Crear el primero</button></p>
+      </div>
+    </div>
+
+    <div id="panel-kanban" role="tabpanel" aria-labelledby="tab-kanban" class="tab-panel" hidden>
+      <div class="kanban" data-hr-kanban-board></div>
+    </div>
+
+    <div id="panel-analitica" role="tabpanel" aria-labelledby="tab-analitica" class="tab-panel" hidden>
+      <div class="grid grid-cols-4" style="margin-bottom: var(--space-5);">
+        <div class="kpi-tile"><span class="kpi-tile-label">Total tickets</span><span class="kpi-tile-value" data-kpi="total">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Abiertos</span><span class="kpi-tile-value" data-kpi="open">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Vencidos</span><span class="kpi-tile-value" data-kpi="overdue">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Próximos a vencer (24h)</span><span class="kpi-tile-value" data-kpi="due-soon">—</span></div>
+      </div>
+      <div class="grid grid-cols-4" style="margin-bottom: var(--space-5);">
+        <div class="kpi-tile"><span class="kpi-tile-label">Resueltos</span><span class="kpi-tile-value" data-kpi="resolved">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Cerrados</span><span class="kpi-tile-value" data-kpi="closed">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Tiempo prom. de resolución</span><span class="kpi-tile-value" data-kpi="resolution-time">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Satisfacción promedio</span><span class="kpi-tile-value" data-kpi="satisfaction">—</span></div>
+      </div>
+      <p class="text-secondary" style="margin-bottom: var(--space-4);">Los tiempos de SLA y de resolución son una <strong>guía de demostración</strong>, no una política oficial de ARRISE.</p>
+      <div class="grid grid-cols-2">
+        <div class="card card-padded">
+          <h3>Volumen por categoría</h3>
+          <div class="chart-container"><canvas data-chart="category" role="img" aria-label="Tickets por categoría"></canvas></div>
+        </div>
+        <div class="card card-padded">
+          <h3>Tickets por estado</h3>
+          <div class="chart-container"><canvas data-chart="status" role="img" aria-label="Tickets por estado"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ statuses|json_script:"hr-statuses" }}
+{{ priorities|json_script:"hr-priorities" }}
+{{ categories|json_script:"hr-categories" }}
+{{ requesters|json_script:"hr-requesters" }}
+{{ agents|json_script:"hr-agents" }}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/solutions/hr.js' %}"></script>
+{% endblock %}

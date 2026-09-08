@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Solutions Support · {{ BRAND_NAME }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <a href="{% url 'core:catalog' %}">Catálogo</a><span>/</span><span class="current">Solutions Support</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Solutions Support</h1>
+    <p class="text-secondary">Mesa de soporte independiente para incidencias, accesos, datos y mejoras de las siete soluciones y Agent TA. <span class="badge badge-warning">Demo · Datos ficticios</span></p>
+  </div>
+  <div class="page-header-actions">
+    <button type="button" class="btn btn-secondary" data-support-report>Reportar un problema</button>
+    <button type="button" class="btn btn-primary" data-support-new>Crear ticket</button>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="grid grid-cols-4" style="margin-bottom: var(--space-5);">
+    <div class="kpi-tile"><span class="kpi-tile-label">Tickets abiertos</span><span class="kpi-tile-value" data-kpi="open">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Pendientes de respuesta</span><span class="kpi-tile-value" data-kpi="waiting">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Tasa de resolución</span><span class="kpi-tile-value" data-kpi="resolution-rate">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Vencidos (SLA demo)</span><span class="kpi-tile-value" data-kpi="overdue">—</span></div>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs" role="tablist" aria-label="Vistas de Solutions Support">
+      <button type="button" class="tab" role="tab" id="tab-tickets" aria-selected="true" data-tab-target="panel-tickets">Tickets</button>
+      <button type="button" class="tab" role="tab" id="tab-analitica" aria-selected="false" data-tab-target="panel-analitica">Analítica</button>
+    </div>
+
+    <div id="panel-tickets" role="tabpanel" aria-labelledby="tab-tickets" class="tab-panel">
+      <div class="cluster" style="margin-bottom: var(--space-3);">
+        <button type="button" class="btn btn-secondary btn-sm is-active" data-support-scope="mine" aria-pressed="true">Mis tickets</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-support-scope="all" aria-pressed="false">Vista general (Manager)</button>
+      </div>
+      <div class="cluster" style="margin-bottom: var(--space-4);">
+        <input class="input" type="search" placeholder="Buscar por asunto o ID…" data-support-filter="q" style="max-width:240px;">
+        <select class="select" data-support-filter="status" style="max-width:190px;">
+          <option value="">Todos los estados</option>
+          {% for s in statuses %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-support-filter="priority" style="max-width:160px;">
+          <option value="">Toda prioridad</option>
+          {% for p in priorities %}<option value="{{ p.slug }}">{{ p.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-support-filter="affected_solution" style="max-width:210px;">
+          <option value="">Toda solución</option>
+          {% for a in affected_solutions %}<option value="{{ a.slug }}">{{ a.name }}</option>{% endfor %}
+        </select>
+        <select class="select" data-support-sort style="max-width:190px;">
+          <option value="recent">Más recientes primero</option>
+          <option value="oldest">Más antiguos primero</option>
+          <option value="priority">Por prioridad</option>
+        </select>
+      </div>
+
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Asunto</th><th>Solución</th><th>Tipo</th><th>Prioridad</th><th>Estado</th><th>Solicitante</th><th>Responsable</th><th>Antigüedad</th>
+            </tr>
+          </thead>
+          <tbody data-support-table-body></tbody>
+        </table>
+      </div>
+      <div class="empty-state card card-padded" data-support-empty hidden>
+        <p>No hay tickets que coincidan con el filtro. <button type="button" class="btn btn-primary btn-sm" data-support-new>Crear el primero</button></p>
+      </div>
+    </div>
+
+    <div id="panel-analitica" role="tabpanel" aria-labelledby="tab-analitica" class="tab-panel" hidden>
+      <div class="grid grid-cols-2">
+        <div class="card card-padded">
+          <h3>Tickets por solución afectada</h3>
+          <div class="chart-container"><canvas data-chart="solution" role="img" aria-label="Tickets por solución"></canvas></div>
+        </div>
+        <div class="card card-padded">
+          <h3>Tickets por tipo</h3>
+          <div class="chart-container"><canvas data-chart="type" role="img" aria-label="Tickets por tipo"></canvas></div>
+        </div>
+      </div>
+      <div class="card card-padded" style="margin-top: var(--space-5);">
+        <h3>Tickets por estado</h3>
+        <div class="chart-container"><canvas data-chart="status" role="img" aria-label="Tickets por estado"></canvas></div>
+      </div>
+      <p class="text-secondary" style="margin-top: var(--space-4);">Guía de demostración: la prioridad sugerida y el SLA por prioridad (horas) son reglas ficticias para esta demo, documentadas en <code>solutions/services/support.py</code>.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ ticket_types|json_script:"support-ticket-types" }}
+{{ impacts|json_script:"support-impacts" }}
+{{ priorities|json_script:"support-priorities" }}
+{{ statuses|json_script:"support-statuses" }}
+{{ affected_solutions|json_script:"support-affected-solutions" }}
+{{ sla_hours_by_priority|json_script:"support-sla-hours" }}
+{{ employees|json_script:"support-employees" }}
+{{ prefill|json_script:"support-prefill" }}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/solutions/support.js' %}"></script>
+{% endblock %}

@@ -7,7 +7,11 @@
 
 {% block content %}
 <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding: var(--space-6);
-            background: linear-gradient(135deg, var(--color-ink-deep), var(--color-ink) 60%, var(--color-primary));">
+            /* Fixed brand wash for the access screen — deliberately NOT the
+               --color-ink(-deep) tokens, which flip to near-white in dark
+               theme (they're text-ink tokens, not a background wash) and
+               would wash this hero out to near-white instead of violet. */
+            background: linear-gradient(135deg, #120826, #1c0f38 60%, #35106a);">
   <div class="card card-padded" style="max-width:640px; width:100%;">
     <div class="cluster" style="justify-content:space-between; margin-bottom: var(--space-4);">
       <div class="cluster">
