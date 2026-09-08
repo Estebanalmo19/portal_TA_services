@@ -1,0 +1,34 @@
+<button type="button" class="btn btn-primary" data-agent-ta-fab
+        style="position:fixed; right:24px; bottom:24px; border-radius:999px; width:56px; height:56px; padding:0; box-shadow: var(--shadow-lg); z-index:150;"
+        aria-haspopup="dialog" aria-expanded="false" aria-controls="agent-ta-panel"
+        aria-label="Abrir Agent TA">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+</button>
+
+<section id="agent-ta-panel" class="card" data-agent-ta-panel role="dialog" aria-label="Agent TA" hidden
+         style="position:fixed; right:24px; bottom:92px; width:min(380px, calc(100vw - 32px)); max-height:min(600px, calc(100vh - 140px)); display:flex; flex-direction:column; z-index:150; box-shadow:var(--shadow-lg);">
+  <header style="display:flex; align-items:center; justify-content:space-between; padding: var(--space-4); border-bottom:1px solid var(--color-border);">
+    <div>
+      <h2 style="margin:0; font-size: var(--font-size-md);">Agent TA</h2>
+      <span class="badge badge-warning">Demo · Respuestas simuladas</span>
+    </div>
+    <div class="cluster">
+      <button type="button" class="btn btn-ghost btn-sm" data-agent-ta-new-conversation data-autofocus>Nueva conversación</button>
+      <button type="button" class="modal-close" data-agent-ta-close aria-label="Cerrar Agent TA">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div data-agent-ta-messages style="flex:1; overflow-y:auto; padding: var(--space-4); display:flex; flex-direction:column; gap: var(--space-3);" aria-live="polite"></div>
+
+  <div data-agent-ta-suggested class="cluster" style="padding: 0 var(--space-4) var(--space-3);"></div>
+
+  <form data-agent-ta-form style="display:flex; gap: var(--space-2); padding: var(--space-4); border-top:1px solid var(--color-border);">
+    <label class="visually-hidden" for="agent-ta-input">Escribe tu pregunta para Agent TA</label>
+    <input id="agent-ta-input" class="input" type="text" maxlength="500" placeholder="Escribe tu pregunta sobre TA…" autocomplete="off" required>
+    <button type="submit" class="btn btn-primary" aria-label="Enviar pregunta">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/></svg>
+    </button>
+  </form>
+</section>

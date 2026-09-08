@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Página no encontrada · {{ BRAND_NAME }}{% endblock %}
+{% block shell_extra_class %} is-bare{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block topbar %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block content %}
+<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding: var(--space-6);">
+  <div class="card card-padded stack" style="max-width:480px; text-align:center;">
+    <h1>404 — Página no encontrada</h1>
+    <p>Esta página no existe en la demo. Vuelve al catálogo para seguir explorando.</p>
+    <a class="btn btn-primary" href="/catalogo/">Ir al catálogo</a>
+  </div>
+</div>
+{% endblock %}

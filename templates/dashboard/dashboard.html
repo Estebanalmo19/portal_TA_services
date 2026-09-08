@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Dashboard ejecutivo · {{ BRAND_NAME }}{% endblock %}
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <a href="{% url 'core:catalog' %}">Catálogo</a><span>/</span><span class="current">Dashboard ejecutivo</span>
+</nav>
+{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Dashboard ejecutivo</h1></div>
+<div class="page-content">
+  <div class="empty-state card card-padded">
+    <p>El dashboard se integra después de completar las siete soluciones (ver docs/implementation-notes.md).</p>
+  </div>
+</div>
+{% endblock %}

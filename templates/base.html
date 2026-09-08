@@ -1,0 +1,70 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ BRAND_NAME }}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  {% block extra_css %}{% endblock %}
+  <script>
+    (function () {
+      try {
+        var stored = localStorage.getItem("arrise_theme");
+        if (stored === "light" || stored === "dark") {
+          document.documentElement.setAttribute("data-theme", stored);
+        }
+      } catch (e) { /* storage unavailable: fall back to prefers-color-scheme */ }
+    })();
+    window.ARRISE_STATE_VERSION = {{ STATE_VERSION }};
+  </script>
+</head>
+<body>
+  {% csrf_token %}
+  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+  <div class="app-shell{% block shell_extra_class %}{% endblock %}">
+    <div class="nav-overlay" data-nav-overlay hidden></div>
+    {% block sidebar %}{% include "layout/sidebar.html" %}{% endblock %}
+
+    <div class="app-main">
+      {% block topbar %}{% include "layout/topbar.html" %}{% endblock %}
+      {% block breadcrumbs %}{% include "layout/breadcrumbs.html" %}{% endblock %}
+      <main id="main-content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  {% include "layout/agent_ta_panel.html" %}
+
+  <div class="modal-overlay" data-modal-root hidden></div>
+  <div class="toast-region" role="status" aria-live="polite"></div>
+
+  {{ initial_state|json_script:"arrise-initial-state" }}
+
+  <script src="{% static 'js/state/storage.js' %}"></script>
+  <script src="{% static 'js/state/api.js' %}"></script>
+  <script src="{% static 'js/state/bootstrap.js' %}"></script>
+  <script src="{% static 'js/ui/dom.js' %}"></script>
+  <script src="{% static 'js/ui/toast.js' %}"></script>
+  <script src="{% static 'js/ui/focus-trap.js' %}"></script>
+  <script src="{% static 'js/ui/modal.js' %}"></script>
+  <script src="{% static 'js/ui/sidebar.js' %}"></script>
+  <script src="{% static 'js/ui/theme.js' %}"></script>
+  <script src="{% static 'js/ui/tooltip.js' %}"></script>
+  <script src="{% static 'js/ui/tabs.js' %}"></script>
+  <script src="{% static 'js/site.js' %}"></script>
+  <script src="{% static 'js/agent_ta.js' %}"></script>
+  <script>
+    document.addEventListener("arrise:state-ready", function (evt) {
+      if (evt.detail && evt.detail.recovered) {
+        ArriseToast.info("Se encontró un estado de demo dañado o de una versión anterior: se restableció con los datos iniciales.");
+      }
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

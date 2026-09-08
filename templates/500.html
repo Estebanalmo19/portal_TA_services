@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Error del servidor · {{ BRAND_NAME }}{% endblock %}
+{% block shell_extra_class %} is-bare{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block topbar %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block content %}
+<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding: var(--space-6);">
+  <div class="card card-padded stack" style="max-width:480px; text-align:center;">
+    <h1>Ocurrió un error</h1>
+    <p>Algo falló al procesar tu solicitud en esta demo. Intenta recargar o volver al catálogo.</p>
+    <a class="btn btn-primary" href="/catalogo/">Ir al catálogo</a>
+  </div>
+</div>
+{% endblock %}

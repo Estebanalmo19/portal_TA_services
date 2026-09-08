@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Catálogo · {{ BRAND_NAME }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <span class="current">Catálogo</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Catálogo de soluciones</h1>
+    <p class="text-secondary">Siete soluciones ARRISE centralizadas, con datos ficticios para esta demo.</p>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="cluster" style="margin-bottom: var(--space-5);">
+    <label class="visually-hidden" for="catalog-filter-area">Filtrar por área</label>
+    <select id="catalog-filter-area" class="select" data-catalog-filter="area" style="max-width:220px;">
+      <option value="">Todas las áreas</option>
+      {% for area in NAV_AREAS %}<option value="{{ area.slug }}">{{ area.name }}</option>{% endfor %}
+    </select>
+
+    <label class="visually-hidden" for="catalog-filter-status">Filtrar por estado</label>
+    <select id="catalog-filter-status" class="select" data-catalog-filter="status" style="max-width:180px;">
+      <option value="">Todos los estados</option>
+      <option value="Live">Live</option>
+      <option value="Pilot">Pilot</option>
+      <option value="Demo">Demo</option>
+    </select>
+
+    <label class="visually-hidden" for="catalog-filter-q">Buscar en el catálogo</label>
+    <input id="catalog-filter-q" class="input" type="search" placeholder="Buscar por nombre…" data-catalog-filter="q" style="max-width:240px;">
+  </div>
+
+  <div class="grid grid-catalog" data-catalog-grid>
+    {% for card in cards %}
+      <article class="card solution-card" data-catalog-card data-area="{{ card.owner_area }}" data-status="{{ card.status }}" data-name="{{ card.name|lower }}">
+        <div class="solution-card-top">
+          <div>
+            <div class="solution-card-area">{{ card.owner_area|default:"" }}</div>
+            <h3>{{ card.name }}</h3>
+          </div>
+          <span class="badge {{ card.status_badge_class }}">{{ card.status }} (simulado)</span>
+        </div>
+        <p class="solution-card-desc">{{ card.description }}</p>
+        <dl class="solution-card-meta">
+          <div><dt>Usuarios activos</dt><dd>{{ card.active_users }}</dd></div>
+          <div><dt>Última actividad</dt><dd data-relative-time="{{ card.last_activity|default_if_none:'' }}">{{ card.last_activity|default:"Sin datos" }}</dd></div>
+          <div><dt>Salud</dt><dd>{{ card.health_label }}</dd></div>
+          <div><dt>Beneficio</dt><dd style="font-weight:400;">{{ card.benefit }}</dd></div>
+        </dl>
+        <div class="solution-card-actions">
+          <a class="btn btn-primary btn-sm" href="/soluciones/{{ card.slug }}/">Abrir</a>
+          <div class="cluster">
+            <a class="btn btn-ghost btn-sm" href="/soluciones/support/?sol={{ card.slug }}&origen=catalogo">Reportar un problema</a>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="empty-state card card-padded" data-catalog-empty hidden>
+    <p>No hay soluciones que coincidan con el filtro.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/core_catalog.js' %}"></script>
+{% endblock %}

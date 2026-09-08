@@ -1,0 +1,217 @@
+/*
+ * ARRISE Solutions Portal — design tokens.
+ *
+ * Light theme values below are the brand contract for this exercise
+ * (see docs/implementation-notes.md). The dark theme is this demo's own
+ * adaptation of that identity, not an official ARRISE deliverable.
+ *
+ * `data-theme="light"` / `data-theme="dark"` on <html> forces a theme;
+ * with no attribute we follow the OS preference. `-a11y` tokens are
+ * accessible-contrast variants of a brand color for use as *text*, kept
+ * alongside (not instead of) the original brand token used for fills/badges.
+ */
+
+:root {
+  /* Brand */
+  --color-primary: #35106a;
+  --color-primary-hover: #2a0c55;
+  --color-primary-active: #200941;
+  --color-primary-soft: #f4eefc;
+  --color-ink: #1c0f38;
+  --color-ink-deep: #120826;
+  --color-violet-bright: #7f5af0;
+  --color-secondary: #06284a;
+  --color-accent: #0e9f6e;
+
+  /* Surfaces */
+  --color-bg: #f7f5fb;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f4f1f9;
+  --color-surface-raised: #ffffff;
+  --color-border: #e5e1ee;
+  --color-border-strong: #d3cce2;
+
+  /* Text */
+  --color-text-primary: #1a1424;
+  --color-text-secondary: #6b6475;
+  --color-text-tertiary: #7d7689;
+  --color-text-on-primary: #ffffff;
+  --color-text-link: var(--color-primary);
+
+  /* Semantic */
+  --color-success: #1f9d55;
+  --color-success-bg: #e8f7ee;
+  --color-success-text: #146c3a;
+  --color-warning: #b7791f;
+  --color-warning-bg: #fdf3dd;
+  --color-warning-text: #7a4f0f;
+  --color-danger: #c0392b;
+  --color-danger-bg: #fbeae8;
+  --color-danger-text: #8f291d;
+  --color-info: #2f6fd6;
+  --color-info-bg: #e8f0fd;
+  --color-info-text: #1e4f9e;
+
+  /* Accessible-on-light-bg text variants (contrast-checked >= 4.5:1) */
+  --color-secondary-a11y: #06284a;
+  --color-violet-bright-a11y: #5b3bd6;
+  --color-text-tertiary-a11y: #5c5568;
+
+  /* Focus ring */
+  --color-focus-ring: #5b3bd6;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* Shadows (subtle, violet-tinted) */
+  --shadow-sm: 0 1px 2px rgba(28, 15, 56, 0.06);
+  --shadow-md: 0 4px 16px rgba(28, 15, 56, 0.08);
+  --shadow-lg: 0 12px 32px rgba(28, 15, 56, 0.14);
+
+  /* Typography */
+  --font-family-base: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-family-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.9375rem;
+  --font-size-md: 1.0625rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.625rem;
+  --font-size-2xl: 2rem;
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  --sidebar-width: 264px;
+  --sidebar-width-collapsed: 72px;
+  --topbar-height: 64px;
+
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
+
+/* ---------------- Dark theme (demo adaptation) ---------------- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-primary: #a98af7;
+    --color-primary-hover: #bda2fb;
+    --color-primary-active: #8f6df2;
+    --color-primary-soft: #241a3d;
+    --color-ink: #ece7fb;
+    --color-ink-deep: #f6f4ff;
+    --color-violet-bright: #b39dff;
+    --color-secondary: #7fb1ff;
+    --color-accent: #34d399;
+
+    --color-bg: #150c28;
+    --color-surface: #1e1338;
+    --color-surface-secondary: #251a41;
+    --color-surface-raised: #2a1e49;
+    --color-border: #3a2c5c;
+    --color-border-strong: #4c3b73;
+
+    --color-text-primary: #f2effa;
+    --color-text-secondary: #c3bad9;
+    --color-text-tertiary: #a99fc4;
+    --color-text-on-primary: #150c28;
+    --color-text-link: var(--color-primary);
+
+    --color-success: #34d399;
+    --color-success-bg: #123326;
+    --color-success-text: #7be3bb;
+    --color-warning: #f0b658;
+    --color-warning-bg: #3a2a10;
+    --color-warning-text: #f6cb84;
+    --color-danger: #f2867a;
+    --color-danger-bg: #3a1712;
+    --color-danger-text: #f6a89e;
+    --color-info: #7fb1ff;
+    --color-info-bg: #122a49;
+    --color-info-text: #a8c9fb;
+
+    --color-secondary-a11y: #a9cbff;
+    --color-violet-bright-a11y: #cabdff;
+    --color-text-tertiary-a11y: #c3bad9;
+
+    --color-focus-ring: #bda2fb;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-primary: #a98af7;
+  --color-primary-hover: #bda2fb;
+  --color-primary-active: #8f6df2;
+  --color-primary-soft: #241a3d;
+  --color-ink: #ece7fb;
+  --color-ink-deep: #f6f4ff;
+  --color-violet-bright: #b39dff;
+  --color-secondary: #7fb1ff;
+  --color-accent: #34d399;
+
+  --color-bg: #150c28;
+  --color-surface: #1e1338;
+  --color-surface-secondary: #251a41;
+  --color-surface-raised: #2a1e49;
+  --color-border: #3a2c5c;
+  --color-border-strong: #4c3b73;
+
+  --color-text-primary: #f2effa;
+  --color-text-secondary: #c3bad9;
+  --color-text-tertiary: #a99fc4;
+  --color-text-on-primary: #150c28;
+  --color-text-link: var(--color-primary);
+
+  --color-success: #34d399;
+  --color-success-bg: #123326;
+  --color-success-text: #7be3bb;
+  --color-warning: #f0b658;
+  --color-warning-bg: #3a2a10;
+  --color-warning-text: #f6cb84;
+  --color-danger: #f2867a;
+  --color-danger-bg: #3a1712;
+  --color-danger-text: #f6a89e;
+  --color-info: #7fb1ff;
+  --color-info-bg: #122a49;
+  --color-info-text: #a8c9fb;
+
+  --color-secondary-a11y: #a9cbff;
+  --color-violet-bright-a11y: #cabdff;
+  --color-text-tertiary-a11y: #c3bad9;
+
+  --color-focus-ring: #bda2fb;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+}

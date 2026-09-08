@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ solution_name }} · ARRISE Solutions Portal{% endblock %}
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1>{{ solution_name }}</h1>
+      <p class="text-secondary">Este módulo está en construcción en esta rama.</p>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="empty-state card card-padded">
+      <p>Aún no implementado. Vuelve al <a href="{% url 'core:catalog' %}">catálogo</a>.</p>
+    </div>
+  </div>
+{% endblock %}

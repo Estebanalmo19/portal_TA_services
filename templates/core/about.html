@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Acerca de · {{ BRAND_NAME }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <a href="{% url 'core:catalog' %}">Catálogo</a>
+  <span>/</span>
+  <span class="current">Acerca de</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header"><h1>Acerca de este portal</h1></div>
+<div class="page-content stack">
+
+  <section class="card card-padded stack">
+    <h2>Qué es esto</h2>
+    <p>{{ BRAND_NAME }} es un MVP de demostración que centraliza siete soluciones ficticias de Talent Acquisition, HR Colombia, Security, Data & Analytics y Operations, más un asistente local (Agent TA). Todos los datos son sintéticos: nombres, correos <code>@example.com</code>, incidentes, tickets y métricas.</p>
+  </section>
+
+  <section class="card card-padded stack">
+    <h2>El selector de perfil no es autenticación real</h2>
+    <p>Al entrar eliges un perfil (Manager, Solution Owner o Analyst) que solo se guarda en <code>sessionStorage</code> de esta pestaña. No hay usuarios, contraseñas ni permisos reales: es una simulación de qué recorrido vería cada rol, no un control de acceso ni una frontera de seguridad.</p>
+  </section>
+
+  <section class="card card-padded stack">
+    <h2>Cómo se guarda el estado</h2>
+    <p>Django no usa base de datos: sirve un snapshot inicial de datos de ejemplo y valida cada operación (crear, asignar, comentar, cambiar estado) con servicios en Python. El navegador guarda ese estado — y tus cambios — en <code>sessionStorage</code> mientras dura la pestaña; <code>localStorage</code> solo guarda preferencias visuales (tema, sidebar). «Restablecer demo», en el menú de perfil, borra los datos de esta pestaña y vuelve a cargar el estado inicial.</p>
+  </section>
+
+  <section class="card card-padded stack">
+    <h2>Límites de esta demo</h2>
+    <ul>
+      <li>Sin autenticación, autorización o base de datos reales.</li>
+      <li>Sin integraciones externas: correo, HiBob, Microsoft 365, Power Automate o cualquier API de negocio.</li>
+      <li>Agent TA es un motor de reglas local (FAQ + coincidencia de intención); no es un modelo de lenguaje ni se conecta a uno.</li>
+      <li>Los SLA, políticas y guías marcadas como «Guía de demostración» son ficticios y existen solo para dar contexto a esta demo.</li>
+      <li>No es apto para producción tal cual: falta hardening de seguridad, persistencia real y gobierno de datos.</li>
+    </ul>
+  </section>
+
+  <section class="card card-padded stack">
+    <h2>Evolución hacia producción (no implementado en este MVP)</h2>
+    <ul>
+      <li><strong>Persistencia:</strong> migrar de mocks en memoria a PostgreSQL con migraciones de Django, auditoría y respaldo.</li>
+      <li><strong>Identidad:</strong> autenticación empresarial real (SSO / Microsoft 365) en lugar del selector de perfil.</li>
+      <li><strong>Integraciones:</strong> Microsoft 365 (correo/calendario), Power Automate (flujos), HiBob (datos de HR) y otras APIs internas de negocio.</li>
+      <li><strong>Operación:</strong> observabilidad, control de acceso por rol real, y políticas de retención de datos.</li>
+    </ul>
+  </section>
+</div>
+{% endblock %}

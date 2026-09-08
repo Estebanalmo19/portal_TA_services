@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Referral Portal · {{ BRAND_NAME }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <a href="{% url 'core:catalog' %}">Catálogo</a><span>/</span><span class="current">Referral Portal</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Referral Portal</h1>
+    <p class="text-secondary">Programa de referidos con seguimiento por etapas. <span class="badge badge-warning">Datos ficticios</span></p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="/soluciones/support/?sol=referral&origen=reportar_problema">Reportar un problema</a>
+    <button type="button" class="btn btn-primary" data-referral-new>Nuevo referido</button>
+  </div>
+</div>
+
+<div class="page-content">
+  <div data-tabs>
+    <div class="tabs" role="tablist" aria-label="Vistas de Referral Portal">
+      <button type="button" class="tab" role="tab" id="tab-referidos" aria-selected="true" data-tab-target="panel-referidos">Referidos</button>
+      <button type="button" class="tab" role="tab" id="tab-analitica" aria-selected="false" data-tab-target="panel-analitica">Analítica</button>
+    </div>
+
+    <div id="panel-referidos" role="tabpanel" aria-labelledby="tab-referidos" class="tab-panel">
+      <div class="cluster" style="margin-bottom: var(--space-4);">
+        <input class="input" type="search" placeholder="Buscar por candidato o ID…" data-referral-filter="q" style="max-width:260px;">
+        <select class="select" data-referral-filter="status" style="max-width:200px;">
+          <option value="">Todas las etapas</option>
+          {% for s in statuses %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-referral-filter="country" style="max-width:180px;">
+          <option value="">Todos los países</option>
+          {% for c in countries %}<option value="{{ c.slug }}">{{ c.name }}</option>{% endfor %}
+        </select>
+      </div>
+
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Candidato</th><th>Vacante</th><th>País</th><th>Referente</th><th>Etapa</th><th>Última actividad</th>
+            </tr>
+          </thead>
+          <tbody data-referral-table-body></tbody>
+        </table>
+      </div>
+      <div class="empty-state card card-padded" data-referral-empty hidden>
+        <p>No hay referidos que coincidan con el filtro. <button type="button" class="btn btn-primary btn-sm" data-referral-new>Crear el primero</button></p>
+      </div>
+    </div>
+
+    <div id="panel-analitica" role="tabpanel" aria-labelledby="tab-analitica" class="tab-panel" hidden>
+      <div class="grid grid-cols-4" style="margin-bottom: var(--space-5);">
+        <div class="kpi-tile"><span class="kpi-tile-label">Total referidos</span><span class="kpi-tile-value" data-kpi="total">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Tasa de contratación</span><span class="kpi-tile-value" data-kpi="hire-rate">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">En proceso</span><span class="kpi-tile-value" data-kpi="in-progress">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Rechazados</span><span class="kpi-tile-value" data-kpi="rejected">—</span></div>
+      </div>
+      <div class="grid grid-cols-2">
+        <div class="card card-padded">
+          <h3>Conversión por etapa</h3>
+          <div class="chart-container"><canvas data-chart="funnel" role="img" aria-label="Referidos por etapa"></canvas></div>
+        </div>
+        <div class="card card-padded">
+          <h3>Distribución por país</h3>
+          <div class="chart-container"><canvas data-chart="country" role="img" aria-label="Referidos por país"></canvas></div>
+        </div>
+      </div>
+      <div class="card card-padded" style="margin-top: var(--space-5);">
+        <h3>Vacantes más referidas</h3>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Vacante</th><th>País</th><th>Referidos</th></tr></thead>
+            <tbody data-referral-top-vacancies></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ job_openings|json_script:"referral-job-openings" }}
+{{ relations|json_script:"referral-relations" }}
+{{ statuses|json_script:"referral-statuses" }}
+{{ countries|json_script:"referral-countries" }}
+{{ employees|json_script:"referral-employees" }}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/solutions/referral.js' %}"></script>
+{% endblock %}
