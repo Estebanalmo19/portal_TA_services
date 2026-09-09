@@ -1,11 +1,12 @@
-from functools import partial
-
 from django.urls import path
 
-from solutions.views._stub import stub_home
+from solutions.views import appearance as views
 
 app_name = "appearance"
 
 urlpatterns = [
-    path("", partial(stub_home, name="Appearance Check"), name="home"),
+    path("", views.home, name="home"),
+    path("api/crear/", views.api_create, name="api_create"),
+    path("api/iniciar/", views.api_start, name="api_start"),
+    path("api/completar/", views.api_complete, name="api_complete"),
 ]

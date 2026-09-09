@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Appearance Check · {{ BRAND_NAME }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <a href="{% url 'core:catalog' %}">Catálogo</a><span>/</span><span class="current">Appearance Check</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Appearance Check</h1>
+    <p class="text-secondary">Revisión manual de preparación de presentación antes de entrar a operación. <span class="badge badge-warning">Demo · Datos ficticios</span></p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="{{ support_link }}">Reportar un problema</a>
+    <button type="button" class="btn btn-primary" data-appearance-new>Nueva revisión</button>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="card card-padded" style="margin-bottom: var(--space-4); border-color: var(--color-info-text);">
+    <p style="margin:0;"><strong>Nota de transparencia:</strong> este checklist registra criterios operativos de demostración como apoyo de contexto. La decisión final de la revisión (Aprobado / Requiere revisión) siempre la elige explícitamente una persona revisora; ningún criterio ni combinación de criterios la calcula automáticamente. Este módulo no analiza fotografías, no identifica personas y no puntúa apariencia física.</p>
+  </div>
+
+  <div class="grid grid-cols-4" style="margin-bottom: var(--space-4);">
+    <div class="kpi-tile"><span class="kpi-tile-label">Revisiones de hoy</span><span class="kpi-tile-value" data-appearance-kpi="today">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Tasa de aprobación</span><span class="kpi-tile-value" data-appearance-kpi="approval-rate">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Revisiones pendientes</span><span class="kpi-tile-value" data-appearance-kpi="pending">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Tiempo promedio de revisión</span><span class="kpi-tile-value" data-appearance-kpi="avg-time">—</span></div>
+  </div>
+  <p class="text-secondary" style="margin: 0 0 var(--space-4);">Última sincronización simulada: <strong data-appearance-last-sync>—</strong></p>
+
+  <div class="card card-padded" data-appearance-followups hidden style="margin-bottom: var(--space-4); border-color: var(--color-danger-text);">
+    <h3 style="margin-top:0;">Seguimientos vencidos</h3>
+    <ul data-appearance-followups-list style="margin:0; padding-left: 1.1em;"></ul>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs" role="tablist" aria-label="Vistas de Appearance Check">
+      <button type="button" class="tab" role="tab" id="tab-revisiones" aria-selected="true" data-tab-target="panel-revisiones">Revisiones</button>
+      <button type="button" class="tab" role="tab" id="tab-analitica" aria-selected="false" data-tab-target="panel-analitica">Analítica</button>
+    </div>
+
+    <div id="panel-revisiones" role="tabpanel" aria-labelledby="tab-revisiones" class="tab-panel">
+      <div class="cluster" style="margin-bottom: var(--space-4); flex-wrap: wrap;">
+        <input class="input" type="search" placeholder="Buscar por colaborador o ID…" data-appearance-filter="q" style="max-width:240px;">
+        <select class="select" data-appearance-filter="site" style="max-width:170px;">
+          <option value="">Todas las sedes</option>
+          {% for s in sites %}<option value="{{ s.slug }}">{{ s.name }}</option>{% endfor %}
+        </select>
+        <select class="select" data-appearance-filter="role" style="max-width:190px;">
+          <option value="">Todas las áreas/roles</option>
+          {% for r in roles %}<option value="{{ r.slug }}">{{ r.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-appearance-filter="shift" style="max-width:190px;">
+          <option value="">Todos los turnos</option>
+          {% for s in shifts %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-appearance-filter="status" style="max-width:170px;">
+          <option value="">Todos los estados</option>
+          {% for s in statuses %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-appearance-filter="result" style="max-width:170px;">
+          <option value="">Todos los resultados</option>
+          {% for r in results %}<option value="{{ r.slug }}">{{ r.label }}</option>{% endfor %}
+        </select>
+      </div>
+
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Colaborador</th><th>Sede</th><th>Área/Rol</th><th>Turno</th><th>Estado</th><th>Resultado</th><th>Última actividad</th>
+            </tr>
+          </thead>
+          <tbody data-appearance-table-body></tbody>
+        </table>
+      </div>
+      <div class="empty-state card card-padded" data-appearance-empty hidden>
+        <p>No hay revisiones que coincidan con el filtro. <button type="button" class="btn btn-primary btn-sm" data-appearance-new>Registrar la primera</button></p>
+      </div>
+    </div>
+
+    <div id="panel-analitica" role="tabpanel" aria-labelledby="tab-analitica" class="tab-panel" hidden>
+      <div class="grid grid-cols-4" style="margin-bottom: var(--space-5);">
+        <div class="kpi-tile"><span class="kpi-tile-label">Revisiones (12 meses)</span><span class="kpi-tile-value" data-kpi="executions">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Tasa de aprobación (12 meses)</span><span class="kpi-tile-value" data-kpi="success-rate">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Horas ahorradas</span><span class="kpi-tile-value" data-kpi="hours-saved">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Satisfacción promedio</span><span class="kpi-tile-value" data-kpi="satisfaction">—</span></div>
+      </div>
+
+      <div class="grid grid-cols-2" style="gap: var(--space-5);">
+        <div class="card card-padded">
+          <h3>Revisiones gestionadas por mes</h3>
+          <div class="chart-container"><canvas data-chart="trend" role="img" aria-label="Revisiones gestionadas por mes"></canvas></div>
+        </div>
+        <div class="card card-padded">
+          <h3>Revisiones por sede</h3>
+          <div class="chart-container"><canvas data-chart="site" role="img" aria-label="Revisiones por sede"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card card-padded" style="margin-top: var(--space-5);">
+        <h3>Actividad reciente</h3>
+        <ul data-appearance-activity style="margin:0; padding-left: 1.1em;"></ul>
+      </div>
+
+      <div class="card card-padded" style="margin-top: var(--space-5);">
+        <h3>Detalle mensual</h3>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Mes</th><th>Revisiones</th><th>Aprobadas</th><th>Requieren revisión</th><th>Horas ahorradas</th></tr></thead>
+            <tbody data-appearance-monthly-body></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ statuses|json_script:"appearance-statuses" }}
+{{ results|json_script:"appearance-results" }}
+{{ shifts|json_script:"appearance-shifts" }}
+{{ roles|json_script:"appearance-roles" }}
+{{ criteria|json_script:"appearance-criteria" }}
+{{ sites|json_script:"appearance-sites" }}
+{{ employees|json_script:"appearance-employees" }}
+{{ today|json_script:"appearance-today" }}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/solutions/appearance.js' %}"></script>
+{% endblock %}

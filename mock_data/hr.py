@@ -19,6 +19,7 @@ from functools import lru_cache
 
 from .clock import days_ago, iso, new_rng, reference_datetime
 from .people import employees
+from .timeseries import MonthlyProfile, generate_monthly_series
 
 STATUS_LABELS = {
     "new": "Nuevo",
@@ -336,6 +337,24 @@ def showcase_records() -> list[dict]:
             }
         )
     return records
+
+
+@lru_cache(maxsize=1)
+def monthly_series() -> list[dict]:
+    """12-month activity series for the executive dashboard (see
+    ``docs/implementation-notes.md`` / ``mock_data.timeseries``) — separate
+    from ``showcase_records()``, which only models a ~2 month rolling window
+    of "current" tickets for this module's own table/kanban."""
+    profile = MonthlyProfile(
+        base_active_ratio=0.22,
+        executions_per_active=1.4,
+        success_rate=0.9,  # fraction of finished tickets resolved without reopening
+        manual_minutes=35,
+        assisted_minutes=10,
+        satisfaction_response_rate=0.5,
+        satisfaction_mean=3.9,
+    )
+    return generate_monthly_series("hr.monthly", "hr", profile)
 
 
 def initial_state() -> dict:

@@ -13,6 +13,24 @@ from functools import lru_cache
 from .clock import days_ago, iso, new_rng
 from .people import employees
 from .reference import SOLUTION_BY_SLUG
+from .timeseries import MonthlyProfile, generate_monthly_series
+
+
+@lru_cache(maxsize=1)
+def monthly_series() -> list[dict]:
+    """12-month activity series for the executive dashboard — separate from
+    ``showcase_records()`` (the ~15-20 "current" tickets shown in this
+    module's own table)."""
+    profile = MonthlyProfile(
+        base_active_ratio=0.15,
+        executions_per_active=1.2,
+        success_rate=0.85,
+        manual_minutes=25,
+        assisted_minutes=8,
+        satisfaction_response_rate=0.45,
+        satisfaction_mean=3.8,
+    )
+    return generate_monthly_series("support.monthly", "support", profile)
 
 TICKET_TYPE_LABELS = {
     "problema_tecnico": "Problema técnico",

@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Automation Health Center · {{ BRAND_NAME }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <a href="{% url 'core:catalog' %}">Catálogo</a><span>/</span><span class="current">Automation Health Center</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Automation Health Center</h1>
+    <p class="text-secondary">Salud y ejecución de las automatizaciones internas del negocio. <span class="badge badge-warning">Demo · Datos ficticios</span></p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="{{ support_link }}">Reportar un problema</a>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="grid grid-cols-4" style="margin-bottom: var(--space-4);">
+    <div class="kpi-tile"><span class="kpi-tile-label">Automatizaciones</span><span class="kpi-tile-value" data-automation-kpi="total">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Activas</span><span class="kpi-tile-value" data-automation-kpi="active">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Requieren atención</span><span class="kpi-tile-value" data-automation-kpi="attention">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Horas ahorradas / semana</span><span class="kpi-tile-value" data-automation-kpi="hours">—</span></div>
+  </div>
+  <p class="text-secondary" style="margin: 0 0 var(--space-4);">Última sincronización simulada: <strong data-automation-last-sync>—</strong></p>
+
+  <div class="card card-padded" data-automation-alerts hidden style="margin-bottom: var(--space-4); border-color: var(--color-danger-text);">
+    <h3 style="margin-top:0;">Automatizaciones que requieren atención</h3>
+    <ul data-automation-alerts-list style="margin:0; padding-left: 1.1em;"></ul>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs" role="tablist" aria-label="Vistas de Automation Health Center">
+      <button type="button" class="tab" role="tab" id="tab-automatizaciones" aria-selected="true" data-tab-target="panel-automatizaciones">Automatizaciones</button>
+      <button type="button" class="tab" role="tab" id="tab-ejecuciones" aria-selected="false" data-tab-target="panel-ejecuciones">Ejecuciones</button>
+      <button type="button" class="tab" role="tab" id="tab-tendencia" aria-selected="false" data-tab-target="panel-tendencia">Tendencia</button>
+    </div>
+
+    <div id="panel-automatizaciones" role="tabpanel" aria-labelledby="tab-automatizaciones" class="tab-panel">
+      <div class="cluster" style="margin-bottom: var(--space-4); flex-wrap: wrap;">
+        <input class="input" type="search" placeholder="Buscar por nombre o ID…" data-automation-filter="q" style="max-width:260px;">
+        <select class="select" data-automation-filter="health" style="max-width:170px;">
+          <option value="">Toda salud</option>
+          {% for h in health_statuses %}<option value="{{ h.slug }}">{{ h.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-automation-filter="paused" style="max-width:170px;">
+          <option value="">Todos los estados</option>
+          <option value="false">Activas</option>
+          <option value="true">Pausadas</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-3" data-automation-cards></div>
+      <div class="empty-state card card-padded" data-automation-empty hidden>
+        <p>No hay automatizaciones que coincidan con el filtro.</p>
+      </div>
+    </div>
+
+    <div id="panel-ejecuciones" role="tabpanel" aria-labelledby="tab-ejecuciones" class="tab-panel" hidden>
+      <div class="cluster" style="margin-bottom: var(--space-4); flex-wrap: wrap;">
+        <select class="select" data-run-filter="automation_id" style="max-width:240px;">
+          <option value="">Todas las automatizaciones</option>
+        </select>
+        <select class="select" data-run-filter="status" style="max-width:170px;">
+          <option value="">Todos los estados</option>
+          {% for s in execution_statuses %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Automatización</th><th>Inicio</th><th>Duración</th><th>Estado</th><th>Registros procesados</th><th>Error</th><th></th>
+            </tr>
+          </thead>
+          <tbody data-run-table-body></tbody>
+        </table>
+      </div>
+      <div class="empty-state card card-padded" data-run-empty hidden>
+        <p>No hay ejecuciones que coincidan con el filtro.</p>
+      </div>
+    </div>
+
+    <div id="panel-tendencia" role="tabpanel" aria-labelledby="tab-tendencia" class="tab-panel" hidden>
+      <div class="grid grid-cols-4" style="margin-bottom: var(--space-5);">
+        <div class="kpi-tile"><span class="kpi-tile-label">Ejecuciones (12 meses)</span><span class="kpi-tile-value" data-kpi="executions">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Tasa de éxito</span><span class="kpi-tile-value" data-kpi="success-rate">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Horas ahorradas</span><span class="kpi-tile-value" data-kpi="hours-saved">—</span></div>
+        <div class="kpi-tile"><span class="kpi-tile-label">Satisfacción promedio</span><span class="kpi-tile-value" data-kpi="satisfaction">—</span></div>
+      </div>
+      <div class="card card-padded">
+        <h3>Ejecuciones gestionadas por mes</h3>
+        <div class="chart-container"><canvas data-chart="trend" role="img" aria-label="Ejecuciones gestionadas por mes"></canvas></div>
+      </div>
+      <div class="card card-padded" style="margin-top: var(--space-5);">
+        <h3>Detalle mensual</h3>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Mes</th><th>Ejecuciones</th><th>Éxito</th><th>Fallidas</th><th>Horas ahorradas</th></tr></thead>
+            <tbody data-automation-monthly-body></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ health_statuses|json_script:"automation-health-statuses" }}
+{{ execution_statuses|json_script:"automation-execution-statuses" }}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/solutions/automation.js' %}"></script>
+{% endblock %}

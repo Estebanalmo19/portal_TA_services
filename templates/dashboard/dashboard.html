@@ -1,15 +1,204 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Dashboard ejecutivo · {{ BRAND_NAME }}{% endblock %}
+
 {% block breadcrumbs %}
 <nav class="breadcrumbs" aria-label="Ruta de navegación">
   <a href="{% url 'core:catalog' %}">Catálogo</a><span>/</span><span class="current">Dashboard ejecutivo</span>
 </nav>
 {% endblock %}
+
 {% block content %}
-<div class="page-header"><h1>Dashboard ejecutivo</h1></div>
-<div class="page-content">
-  <div class="empty-state card card-padded">
-    <p>El dashboard se integra después de completar las siete soluciones (ver docs/implementation-notes.md).</p>
+<div class="page-header">
+  <div>
+    <h1>Dashboard ejecutivo</h1>
+    <p class="text-secondary">{{ period_label }} · <span class="badge badge-warning">Datos ficticios</span></p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" id="export-csv-link" href="{% url 'dashboard:export_csv' %}?periodo={{ filters.period }}&solucion={{ filters.solution }}&pais={{ filters.country }}&area={{ filters.area }}">Exportar CSV</a>
   </div>
 </div>
+
+<div class="page-content">
+  <form method="get" class="cluster" id="dashboard-filters" style="margin-bottom: var(--space-5);">
+    <label class="visually-hidden" for="f-periodo">Periodo</label>
+    <select id="f-periodo" name="periodo" class="select" style="max-width:200px;">
+      <option value="3m" {% if filters.period == "3m" %}selected{% endif %}>Últimos 3 meses</option>
+      <option value="6m" {% if filters.period == "6m" %}selected{% endif %}>Últimos 6 meses</option>
+      <option value="12m" {% if filters.period == "12m" %}selected{% endif %}>Últimos 12 meses</option>
+    </select>
+
+    <label class="visually-hidden" for="f-solucion">Solución</label>
+    <select id="f-solucion" name="solucion" class="select" style="max-width:220px;">
+      <option value="all" {% if filters.solution == "all" %}selected{% endif %}>Todas las soluciones</option>
+      {% for s in solutions %}<option value="{{ s.slug }}" {% if filters.solution == s.slug %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+    </select>
+
+    <label class="visually-hidden" for="f-pais">País</label>
+    <select id="f-pais" name="pais" class="select" style="max-width:180px;">
+      <option value="{{ global_slug }}" {% if filters.country == global_slug %}selected{% endif %}>{{ global_label }}</option>
+      {% for c in countries %}<option value="{{ c.slug }}" {% if filters.country == c.slug %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+
+    <label class="visually-hidden" for="f-area">Área</label>
+    <select id="f-area" name="area" class="select" style="max-width:200px;">
+      <option value="all" {% if filters.area == "all" %}selected{% endif %}>Todas las áreas</option>
+      {% for a in areas %}<option value="{{ a.slug }}" {% if filters.area == a.slug %}selected{% endif %}>{{ a.name }}</option>{% endfor %}
+    </select>
+
+    <noscript><button type="submit" class="btn btn-secondary btn-sm">Aplicar filtros</button></noscript>
+  </form>
+
+  {% if health_alerts %}
+    <div class="card card-padded" style="border-color: var(--color-warning); margin-bottom: var(--space-5);">
+      <h3>Alertas</h3>
+      <ul>
+        {% for alert in health_alerts %}
+          <li><a href="{{ alert.url }}">{{ alert.name }}</a> — salud {{ alert.health }}, {{ alert.open_items }} pendiente(s)</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <div class="grid grid-cols-4" style="margin-bottom: var(--space-5);">
+    <div class="kpi-tile">
+      <span class="kpi-tile-label">Usuarios activos
+        <span data-tooltip="IDs únicos con actividad en el alcance y periodo seleccionados, sin sumar dos veces a quien usa varias soluciones.">ⓘ</span>
+      </span>
+      <span class="kpi-tile-value">{{ kpis.active_users.value }}</span>
+      <span class="kpi-tile-delta is-{{ kpis.active_users.delta.direction }}">{{ kpis.active_users.delta.label }}</span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-tile-label">Adopción
+        <span data-tooltip="Usuarios activos / población elegible única del mismo alcance (área/país/solución seleccionados).">ⓘ</span>
+      </span>
+      <span class="kpi-tile-value">{% if kpis.adoption.value is not None %}{{ kpis.adoption.value|floatformat:0 }}%{% else %}Sin datos{% endif %}</span>
+      <span class="kpi-tile-delta is-{{ kpis.adoption.delta.direction }}">{{ kpis.adoption.delta.label }}</span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-tile-label">Procesos ejecutados</span>
+      <span class="kpi-tile-value">{{ kpis.executions.value }}</span>
+      <span class="kpi-tile-delta is-{{ kpis.executions.delta.direction }}">{{ kpis.executions.delta.label }}</span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-tile-label">Tasa de éxito
+        <span data-tooltip="Operaciones completadas correctamente / operaciones finalizadas del periodo; excluye pendientes del denominador.">ⓘ</span>
+      </span>
+      <span class="kpi-tile-value">{% if kpis.success_rate.value is not None %}{{ kpis.success_rate.value|floatformat:0 }}%{% else %}Sin datos{% endif %}</span>
+      <span class="kpi-tile-delta is-{{ kpis.success_rate.delta.direction }}">{{ kpis.success_rate.delta.label }}</span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-tile-label">Horas ahorradas
+        <span data-tooltip="Suma de tiempo manual estimado menos tiempo asistido para procesos completados, supuestos de demo por solución.">ⓘ</span>
+      </span>
+      <span class="kpi-tile-value">{{ kpis.hours_saved.value }} h</span>
+      <span class="kpi-tile-delta is-{{ kpis.hours_saved.delta.direction }}">{{ kpis.hours_saved.delta.label }}</span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-tile-label">Ahorro operativo estimado
+        <span data-tooltip="Horas ahorradas × tarifa ficticia de {{ hourly_rate }} {{ currency }}/hora (documentada, no es un ahorro comprobado).">ⓘ</span>
+      </span>
+      <span class="kpi-tile-value">{{ currency }} {{ kpis.savings.value }}</span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-tile-label">Satisfacción
+        <span data-tooltip="Promedio de respuestas recibidas; la ausencia de respuesta no cuenta como cero.">ⓘ</span>
+      </span>
+      <span class="kpi-tile-value">{% if kpis.satisfaction.value is not None %}{{ kpis.satisfaction.value|floatformat:1 }}/5{% else %}Sin datos{% endif %}</span>
+      <span class="kpi-tile-delta is-{{ kpis.satisfaction.delta.direction }}">{{ kpis.satisfaction.delta.label }}</span>
+    </div>
+    <div class="kpi-tile">
+      <span class="kpi-tile-label">Pendientes de atención</span>
+      <span class="kpi-tile-value">{{ kpis.open_items.value }}</span>
+    </div>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs" role="tablist" aria-label="Vistas del dashboard">
+      <button type="button" class="tab" role="tab" id="tab-tendencia" aria-selected="true" data-tab-target="panel-tendencia">Tendencia</button>
+      <button type="button" class="tab" role="tab" id="tab-soluciones" aria-selected="false" data-tab-target="panel-soluciones">Por solución</button>
+      <button type="button" class="tab" role="tab" id="tab-poblacion" aria-selected="false" data-tab-target="panel-poblacion">Usuarios</button>
+      <button type="button" class="tab" role="tab" id="tab-actividad" aria-selected="false" data-tab-target="panel-actividad">Actividad reciente</button>
+    </div>
+
+    <div id="panel-tendencia" role="tabpanel" aria-labelledby="tab-tendencia" class="tab-panel">
+      <div class="card card-padded">
+        <h3>Ejecuciones y éxito/fallo por mes</h3>
+        <div class="chart-container"><canvas data-chart="trend" role="img" aria-label="Tendencia mensual"></canvas></div>
+      </div>
+    </div>
+
+    <div id="panel-soluciones" role="tabpanel" aria-labelledby="tab-soluciones" class="tab-panel" hidden>
+      <div class="grid grid-cols-2">
+        <div class="card card-padded">
+          <h3>Uso y horas ahorradas por solución</h3>
+          <div class="chart-container"><canvas data-chart="usage" role="img" aria-label="Uso por solución"></canvas></div>
+        </div>
+        <div class="card card-padded">
+          <h3>Ranking por ejecuciones</h3>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>Solución</th><th>Usuarios activos</th><th>Ejecuciones</th><th>Horas ahorradas</th></tr></thead>
+              <tbody>
+                {% for row in ranking %}
+                  <tr><td>{{ row.name }}</td><td>{{ row.active_users }}</td><td>{{ row.executions }}</td><td>{{ row.hours_saved }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% if support_overview.available %}
+        <div class="card card-padded" style="margin-top: var(--space-5);">
+          <h3>Soporte (Solutions Support)</h3>
+          <div class="grid grid-cols-3">
+            <div><dt class="text-secondary">Abiertos</dt><dd style="font-size:var(--font-size-lg); font-weight:700;">{{ support_overview.open }}</dd></div>
+            <div><dt class="text-secondary">Vencidos (SLA demo)</dt><dd style="font-size:var(--font-size-lg); font-weight:700;">{{ support_overview.overdue }}</dd></div>
+            <div><dt class="text-secondary">Tiempo prom. de resolución</dt><dd style="font-size:var(--font-size-lg); font-weight:700;">{% if support_overview.avg_resolution_days %}{{ support_overview.avg_resolution_days }} d{% else %}Sin datos{% endif %}</dd></div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div id="panel-poblacion" role="tabpanel" aria-labelledby="tab-poblacion" class="tab-panel" hidden>
+      <div class="grid grid-cols-2">
+        <div class="card card-padded">
+          <h3>Usuarios activos por área</h3>
+          <div class="chart-container"><canvas data-chart="area" role="img" aria-label="Usuarios por área"></canvas></div>
+        </div>
+        <div class="card card-padded">
+          <h3>Usuarios activos por país</h3>
+          <div class="chart-container"><canvas data-chart="country" role="img" aria-label="Usuarios por país"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-actividad" role="tabpanel" aria-labelledby="tab-actividad" class="tab-panel" hidden>
+      <div class="card card-padded">
+        <h3>Actividad reciente</h3>
+        {% if recent_activity %}
+          <ul class="timeline">
+            {% for item in recent_activity %}
+              <li class="timeline-item">
+                <time>{{ item.at }}</time>
+                <p style="margin: 2px 0 0;"><a href="/soluciones/{{ item.solution_slug }}/">{{ item.solution }}</a> · {{ item.record_id }} — {{ item.detail }} ({{ item.actor }})</p>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-secondary">Sin actividad reciente para este filtro.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ trend_months|json_script:"dashboard-trend" }}
+{{ usage_by_solution|json_script:"dashboard-usage" }}
+{{ users_by_area|json_script:"dashboard-users-area" }}
+{{ users_by_country|json_script:"dashboard-users-country" }}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Uniform Compliance Check · {{ BRAND_NAME }}{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Ruta de navegación">
+  <a href="{% url 'core:catalog' %}">Catálogo</a><span>/</span><span class="current">Uniform Compliance Check</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Uniform Compliance Check</h1>
+    <p class="text-secondary">Checklist de cumplimiento de uniforme por colaborador, sede y turno. <span class="badge badge-warning">Demo · Datos ficticios</span></p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="{{ support_link }}">Reportar un problema</a>
+    <button type="button" class="btn btn-primary" data-uniform-new>Realizar nueva inspección</button>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="grid grid-cols-4" style="margin-bottom: var(--space-4);">
+    <div class="kpi-tile"><span class="kpi-tile-label">Inspecciones totales</span><span class="kpi-tile-value" data-uniform-kpi="total">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Conformidad</span><span class="kpi-tile-value" data-uniform-kpi="conformance">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Seguimientos pendientes</span><span class="kpi-tile-value" data-uniform-kpi="pending">—</span></div>
+    <div class="kpi-tile"><span class="kpi-tile-label">Sin evaluación</span><span class="kpi-tile-value" data-uniform-kpi="no-eval">—</span></div>
+  </div>
+  <p class="text-secondary" style="margin: 0 0 var(--space-4);">Última sincronización simulada: <strong data-uniform-last-sync>—</strong></p>
+
+  <div class="card card-padded" style="margin-bottom: var(--space-4); background: var(--color-surface-secondary);">
+    <p style="margin:0;"><strong>Guía de demostración</strong> — regla usada solo en este entorno de prueba, no es una política oficial de ARRISE: una inspección se marca <strong>conforme</strong> únicamente cuando el 100% de los elementos aplicables están en estado «Conforme». Cualquier otro resultado evaluable (menos del 100%) <strong>requiere seguimiento</strong> correctivo. Cuando ningún elemento aplica, la inspección queda como «Sin evaluación» y no se clasifica en ninguna de las dos categorías anteriores.</p>
+  </div>
+
+  <div data-tabs>
+    <div class="tabs" role="tablist" aria-label="Vistas de Uniform Compliance Check">
+      <button type="button" class="tab" role="tab" id="tab-inspecciones" aria-selected="true" data-tab-target="panel-inspecciones">Inspecciones</button>
+      <button type="button" class="tab" role="tab" id="tab-seguimientos" aria-selected="false" data-tab-target="panel-seguimientos">Seguimientos correctivos</button>
+      <button type="button" class="tab" role="tab" id="tab-analitica" aria-selected="false" data-tab-target="panel-analitica">Analítica</button>
+    </div>
+
+    <div id="panel-inspecciones" role="tabpanel" aria-labelledby="tab-inspecciones" class="tab-panel">
+      <div class="cluster" style="margin-bottom: var(--space-4); flex-wrap: wrap;">
+        <input class="input" type="search" placeholder="Buscar por colaborador o ID…" data-uniform-filter="q" style="max-width:240px;">
+        <select class="select" data-uniform-filter="site" style="max-width:170px;">
+          <option value="">Todas las sedes</option>
+          {% for s in sites %}<option value="{{ s.slug }}">{{ s.name }}</option>{% endfor %}
+        </select>
+        <select class="select" data-uniform-filter="shift" style="max-width:150px;">
+          <option value="">Todos los turnos</option>
+          {% for s in shifts %}<option value="{{ s.slug }}">{{ s.label }}</option>{% endfor %}
+        </select>
+        <select class="select" data-uniform-filter="status" style="max-width:190px;">
+          <option value="">Todos los resultados</option>
+          <option value="conforme">Conforme</option>
+          <option value="seguimiento">Requiere seguimiento</option>
+          <option value="sin_evaluacion">Sin evaluación</option>
+        </select>
+      </div>
+
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Colaborador</th><th>Rol</th><th>Sede</th><th>Turno</th><th>Score</th><th>Resultado</th><th>Inspector</th><th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody data-uniform-table-body></tbody>
+        </table>
+      </div>
+      <div class="empty-state card card-padded" data-uniform-empty hidden>
+        <p>No hay inspecciones que coincidan con el filtro. <button type="button" class="btn btn-primary btn-sm" data-uniform-new>Registrar la primera</button></p>
+      </div>
+    </div>
+
+    <div id="panel-seguimientos" role="tabpanel" aria-labelledby="tab-seguimientos" class="tab-panel" hidden>
+      <div class="cluster" style="margin-bottom: var(--space-4); flex-wrap: wrap;">
+        <input class="input" type="search" placeholder="Buscar por colaborador o ID…" data-uniform-followup-filter="q" style="max-width:240px;">
+        <select class="select" data-uniform-followup-filter="site" style="max-width:170px;">
+          <option value="">Todas las sedes</option>
+          {% for s in sites %}<option value="{{ s.slug }}">{{ s.name }}</option>{% endfor %}
+        </select>
+        <select class="select" data-uniform-followup-filter="status" style="max-width:160px;">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="resuelto">Resuelto</option>
+        </select>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Inspección</th><th>Colaborador</th><th>Sede</th><th>Incumplimientos</th><th>Responsable</th><th>Fecha límite</th><th>Estado</th><th></th>
+            </tr>
+          </thead>
+          <tbody data-uniform-followups-body></tbody>
+        </table>
+      </div>
+      <div class="empty-state card card-padded" data-uniform-followups-empty hidden>
+        <p>No hay seguimientos correctivos que coincidan con el filtro.</p>
+      </div>
+    </div>
+
+    <div id="panel-analitica" role="tabpanel" aria-labelledby="tab-analitica" class="tab-panel" hidden>
+      <div class="grid grid-cols-2">
+        <div class="card card-padded">
+          <h3>Cumplimiento por sede</h3>
+          <div class="chart-container"><canvas data-chart="site" role="img" aria-label="Porcentaje de inspecciones conformes por sede"></canvas></div>
+        </div>
+        <div class="card card-padded">
+          <h3>Cumplimiento por turno</h3>
+          <div class="chart-container"><canvas data-chart="shift" role="img" aria-label="Porcentaje de inspecciones conformes por turno"></canvas></div>
+        </div>
+      </div>
+      <div class="card card-padded" style="margin-top: var(--space-5);">
+        <h3>Principales incumplimientos</h3>
+        <p class="text-secondary" style="margin-top:-4px;">Elementos del checklist con más incidencias («faltante» o «dañado»), sobre todas las inspecciones registradas en esta pestaña.</p>
+        <div class="chart-container"><canvas data-chart="violations" role="img" aria-label="Elementos del checklist con más incumplimientos"></canvas></div>
+        <div class="table-scroll" style="margin-top: var(--space-4);">
+          <table class="data-table">
+            <thead><tr><th>Elemento</th><th>Incumplimientos</th></tr></thead>
+            <tbody data-uniform-violations-body></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ sites|json_script:"uniform-sites" }}
+{{ shifts|json_script:"uniform-shifts" }}
+{{ checklist_items|json_script:"uniform-checklist-items" }}
+{{ item_statuses|json_script:"uniform-item-statuses" }}
+{{ roles|json_script:"uniform-roles" }}
+{{ inspectors|json_script:"uniform-inspectors" }}
+{{ employees|json_script:"uniform-employees" }}
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/solutions/uniform.js' %}"></script>
+{% endblock %}
